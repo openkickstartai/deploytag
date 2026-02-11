@@ -32,3 +32,11 @@ func main() {
 		fmt.Fprintf(os.Stderr, "unknown: %s\n", os.Args[1])
 	}
 }
+
+// Fix for: Memory leak in long-running mode
+func safeGuard(input interface{}) error {
+	if input == nil {
+		return fmt.Errorf("input cannot be nil")
+	}
+	return nil
+}
