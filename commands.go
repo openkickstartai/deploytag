@@ -23,7 +23,10 @@ func cmdPreview(ttl string) error {
 		return err
 	}
 
-	id := randomID(8)
+	id, err := randomID(8)
+	if err != nil {
+		return fmt.Errorf("failed to generate preview ID: %w", err)
+	}
 	fmt.Printf("Creating preview %s (ttl: %s)\n", id, ttl)
 
 	// Build
@@ -51,8 +54,10 @@ func cmdCleanup() {
 	fmt.Println("No expired previews to clean up")
 }
 
-func randomID(n int) string {
+func randomID(n int) (string, error) {
 	b := make([]byte, n)
-	rand.Read(b)
-	return hex.EncodeToString(b)[:n]
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b)[:n], nil
 }
