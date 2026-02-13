@@ -61,3 +61,34 @@ func randomID(n int) (string, error) {
 	}
 	return hex.EncodeToString(b)[:n], nil
 }
+
+// cmdDeploy deploys a specific git tag as a preview environment.
+func cmdDeploy(tag string) error {
+	cfg, err := loadConfig()
+	if err != nil {
+		return fmt.Errorf("load config: %w", err)
+	}
+	fmt.Printf("deploying tag %s (provider=%s, port=%d)\n", tag, cfg.Provider, cfg.Port)
+
+	// Checkout the requested tag
+	if out, err := execCommand("git", "checkout", tag); err != nil {
+		return fmt.Errorf("git checkout %s: %s", tag, out)
+	}
+
+	// Run the build step
+	if cfg.Build != "" {
+		if out, err := execShell(cfg.Build); err != nil {
+			return fmt.Errorf("build failed: %s", out)
+		}
+	}
+
+	// Run the deploy/run step
+	if cfg.Run != "" {
+		if out, err := execShell(cfg.Run); err != nil {
+			return fmt.Errorf("run failed: %s", out)
+		}
+	}
+
+	fmt.Printf("✓ preview live for tag %s\n", tag)
+	return nil
+}
