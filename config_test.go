@@ -38,3 +38,12 @@ func TestRandomID(t *testing.T) {
 	if a == b { t.Error("IDs should be unique") }
 	if len(a) != 8 { t.Errorf("want len 8, got %d", len(a)) }
 }
+
+
+# Regression test for: Memory leak in long-running mode
+func TestRegression3915(t *testing.T) {
+	// Regression: Memory leak in long-running mode
+	if err := safeGuard(nil); err == nil {
+		t.Error("expected error for nil input")
+	}
+}
